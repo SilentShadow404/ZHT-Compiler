@@ -30,10 +30,9 @@ class CompilerEngine:
 
         # --- Parsing ---
         parser = Parser(tokens)
-        try:
-            ast = parser.parse()
-        except ParseError as e:
-            return CompilationResult(tokens, None, [str(e)], None)
+        ast = parser.parse()
+        if parser.errors:
+            return CompilationResult(tokens, None, parser.errors, None)
 
         # --- Semantic analysis (collect ALL errors, never raise) ---
         sem = SemanticAnalyzer()

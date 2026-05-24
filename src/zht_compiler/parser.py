@@ -36,14 +36,37 @@ class Parser:
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
+        self.errors: List[str] = []
 
     def parse(self) -> Program:
         prog = Program()
         while not self._is_at_end():
-            decl = self._declaration()
-            if decl:
-                prog.declarations.append(decl)
+            try:
+                decl = self._declaration()
+                if decl:
+                    prog.declarations.append(decl)
+            except ParseError as exc:
+                self.errors.append(str(exc))
+                self._synchronize()
         return prog
+
+    def _synchronize(self) -> None:
+        """Panic-mode error recovery: discard tokens until a safe statement boundary."""
+        while not self._is_at_end():
+            # A semicolon ends the broken statement — consume it and stop
+            if self._peek().type == TokenType.SEMICOLON:
+                self._advance()
+                return
+            # A closing brace belongs to an outer block — stop without consuming
+            if self._peek().type == TokenType.RBRACE:
+                return
+            # A type keyword starts a fresh declaration — stop without consuming
+            if self._peek().type in TYPE_TOKENS:
+                return
+            # A statement-level keyword starts a fresh statement — stop
+            if self._peek().type in STATEMENT_KEYWORDS:
+                return
+            self._advance()
 
     # utilities
     def _peek(self) -> Token:
