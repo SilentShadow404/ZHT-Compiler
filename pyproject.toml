@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini-compiler"
+version = "0.1.0"
+description = "A full-featured mini compiler for a C-like language subset"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Copilot" }]
+license = { text = "MIT" }
+keywords = ["compiler", "lexer", "parser", "semantic-analysis", "compiler-construction"]
+dependencies = ["streamlit>=1.36"]
+
+[project.scripts]
+mini-compiler = "mini_compiler.cli:main"
+mini-compiler-ui = "app:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
